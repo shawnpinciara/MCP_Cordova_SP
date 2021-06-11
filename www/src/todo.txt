@@ -1,0 +1,4 @@
+cordova plugin add cordova-plugin-geolocation
+cordova plugin add cordova-sqlite-storage
+cordova plugin add cordova-plugin-browsersync-gen2
+cordova run browser --live-reload

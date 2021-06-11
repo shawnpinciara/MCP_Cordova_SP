@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <!--
+        Customize this policy to fit your own app's needs. For more guidance, see:
+            https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
+        Some notes:
+            * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+                * Enable inline JS: add 'unsafe-inline' to default-src
+        -->
+        <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;"> -->
+        <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' data:; child-src * 'self' blob: http:; style-src * 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+        <meta name="color-scheme" content="light dark">
+        <link rel="stylesheet" href="css/index.css">
+        <!-- <script src='plugins/mapbox.js'></script>
+        <link href='plugins/mapbox.css' rel='stylesheet' /> -->
+        
+        <script src='pluginss/mapbox-gl.js'></script>
+        <link href='pluginss/mapbox-gl.css' rel='stylesheet' />
+        
+
+        <!-- <script src='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js'></script> -->
+        <!-- <link href='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css' rel='stylesheet' /> -->
+
+        <script src="pluginss/jquery.js"></script>
+        <link href="pluginss/bootstrap.js">
+        <link href="pluginss/bootstrap.css" rel="stylesheet">
+        <link href="pluginss/icons.css"
+        rel="stylesheet">
+        <!-- <script src='plugins/mapbox.js'></script>
+        <link href='plugins/mapbox.css' rel='stylesheet' /> -->
+        <title>@channel</title>
+    </head>
+    <body>
+        <!-- <div class="app">
+            <h1>Apache Cordova</h1>
+            <div id="deviceready" class="blink">
+                <p class="event listening">Connecting to Device</p>
+                <p class="event received">Device is Ready</p>
+            </div>
+        </div> -->
+        <div class="container">
+
+            <!-- HOMEPAGE -->
+            <div id="homePage" class="screen">
+                <div class="row pt-5"><div class="col-12 pt-2"></div></div>
+                <div class="d-flex flex-row justify-content-around align-items-center pt-3 bg-warning rounded-bottom fixed-top">
+                    <div class="d-flex"> 
+                    </div>
+                    <div class="d-flex">
+                        <h1 class="text-center fs-1">@channel</h1>
+                    </div>
+                    <div class="d-flex">
+                        <!-- <h2 class="el-icon-setting" id="settings-button"></h2> -->
+                        <span class="material-icons" id="settings-button">
+                            settings
+                        </span>
+                    </div>
+        
+                </div>
+        
+                <div class="row lista">
+                    <div class="col-12 pt-3">
+                        <ul id="channels_list" class="list-group">
+                        </ul>
+                    </div>
+                </div>
+        
+                <div class="d-flex flex-row justify-content-end align-items-center fixed-bottom">
+                    <div class="d-flex m-4">
+                        <button class="add-channel btn btn-warning btn-lg rounded-circle">+</button>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- CHAT -->
+            <div id="chatPage" class="screen" style="display: none; overflow-x: hidden;">
+                <input id="inputImageToLoad" class="inputImageToLoad" type="file" onchange="encodeImageToSendFileAsURL();" style="display:none"/>
+                <div id="imgToSendUploaded" style="display:none"></div>
+                <div class="sticky-top d-flex flex-row justify-content-around align-items-center pt-3 bg-warning rounded-bottom">
+                    <div class="d-flex settings-back">
+                        <span class="material-icons">
+                            arrow_back
+                        </span>
+                    </div>
+                    <div class="d-flex">
+                        <h1 class="channel text-center fs-1">@channel</h1>
+                    </div>
+                    <div class="d-flex"></div>
+                </div>
+        
+                <div class="row lista">
+                    <div class="col-12 pt-20">
+                        <ul id="chat_list" class="list-group">
+                            <!-- <li class="list-group-item" id="id"><p>Prova: </p><p>Ahahahaha</p></li> -->
+                        </ul>
+                    </div>
+                </div>
+    
+                <div class="d-flex flex-row justify-content-around align-items-center fixed-bottom bg-light">
+                    <div class="btn-group p-3" role="group">
+                        <input id="textPost" type="text" class="form-control" placeholder="Message...">
+                        <button id="posPost" type="button" class="btn btn-outline-warning el-icon-position">
+                            <span class="material-icons">
+                            place
+                            </span>
+                        </button>
+                        <button id="imgPost" type="button" class="btn btn-outline-warning el-icon-picture-outline">
+                            <span class="material-icons">
+                            image
+                            </span>
+                        </button>
+                        <button id="sendPost" type="button" class="btn btn-outline-warning el-icon-right">
+                            <span class="material-icons">
+                                send
+                            </span>
+                        </button>
+                      </div>
+                </div>
+            </div>
+    
+            <!-- IMAGE VIEW -->
+            <div id="viewImagePage" class="screen" style="display: none">
+                <div class="d-flex flex-row justify-content-around align-items-center pt-5 bg-warning rounded-bottom">
+                    <div class="d-flex imagebig-back">
+                        <!-- <h2 class="el-icon-back text-center fs-1" style="color:white;"></h2> -->
+                        <span class="material-icons">
+                            arrow_back
+                        </span>
+                    </div>
+                    <div class="d-flex">
+                        <h1 class="text-center fs-1" style="color:white;">@channel</h1>
+                    </div>
+                    <div class="d-flex"></div>
+                </div>
+                <div class="row pt-5">
+                    <img class="col-12">
+                        <img id="imgBig" src="src/default_photo.jpg" style="width: 100%; height:100%;"></img>
+                    </div>
+                </div>  
+            </div>
+
+            <!-- SETTINGS -->
+            <div id="settingsPage" class="screen" style="display: none; overflow-x: hidden; overflow-y: hidden;">
+                    <div class="d-flex flex-row justify-content-around align-items-center pt-3 bg-warning rounded-bottom">
+                        <div class="d-flex">
+                            <span class="material-icons settingsBack">
+                                arrow_back
+                            </span>
+                        </div>
+                        <div class="d-flex">
+                            <h1 class="text-center fs-1">Settings:</h1>
+                        </div>
+                        <div class="d-flex">
+                        </div>
+        
+                    </div>
+                <div class="d-flex flex-column">
+                    <input id="inputFileToLoad" class="inputFileToLoad" type="file" onchange="encodeImageFileAsURL();" style="display:none"/>
+                    <div id="imgUploaded" style="display:none"></div>
+                    <div class="p-2 d-flex justify-content-center" id="userImgDiv">
+                        <img id="userImg" src="https://upload.wikimedia.org/wikipedia/commons/d/de/Windows_live_square.JPG" style="width:100%;height:100%">
+                    </div>
+                    <div id="username" class = "d-flex justify-content-center">
+                        <h2 id="usernameText">Username</h2>
+                        <span class="material-icons" id="usernameEdit">
+                            mode_edit
+                        </span>
+                    </div>
+                </div>
+                    
+            </div>
+    
+            <!-- MAPBOX VIEW -->
+            <div id="viewMapPage" class="screen" style="display: none; overflow-x: hidden; overflow-y: hidden;">
+                <div class="d-flex flex-row justify-content-around align-items-center pt-3 bg-warning rounded-bottom">
+                    <div class="d-flex imagebig-back">
+                        <!-- <h2 class="el-icon-back text-center fs-1"></h2> -->
+                        <span class="material-icons">
+                            arrow_back
+                        </span>
+                    </div>
+                    <div class="d-flex">
+                        <h1 class="text-center fs-1">@channel</h1>
+                    </div>
+                    <div class="d-flex"></div>
+                </div>
+                <div class="row pt-4">
+                    <div class="col-12">
+                        <div id='map' style='width: 400px; height: 300px;'></div>
+                    </div>
+                </div>  
+            </div>
+    
+            <!-- MAPBOX SEND -->
+            <div id="sendPositionPage" class="screen" style="display: none; overflow-x: hidden; overflow-y: hidden;">
+                <div class="d-flex flex-row justify-content-around align-items-center pt-3 bg-warning rounded-bottom">
+                    <div class="d-flex settings-back">
+                        <!-- <h2 class="el-icon-back text-center fs-1"></h2> -->
+                        <span class="material-icons">
+                            arrow_back
+                         </span>
+                    </div>
+                    <div class="d-flex">
+                        <h1 class="text-center fs-1">@channel</h1>
+                    </div>
+                    <div class="d-flex"></div>
+                </div>
+                <div class="row pt-4">
+                    <div class="col-12">
+                        <div id='mapSendPos' style='width: 400px; height: 300px;'></div>
+                    </div>
+                </div>  
+                <div class="row">
+                    <div class="col-12">
+                        <a id="sendPosition" class="btn form-control btn-outline-success el-icon-position">
+                            <span class="material-icons">
+                                send
+                            </span>
+                        </a> <!-- BS3 -->
+                    </div>
+                </div>  
+            </div>
+         
+        </div>
+        <script src="cordova.js"></script>
+        <script src="js/mapbox.js"> </script>
+        <script src="js/mapboxSendPosition.js"></script>
+        <script src="js/dbHandler.js"></script>
+        <script src="js/settings.js"></script>    
+        <script src="js/chat.js"></script>
+        <script src="js/index.js"></script>
+    </body>
+</html>
