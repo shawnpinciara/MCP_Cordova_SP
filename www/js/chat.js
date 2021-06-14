@@ -7,53 +7,6 @@
         sid = localStorage.getItem("sid");
         // getChannel()
     });
-
-    $("#chat_list").on("click", "li", function () {
-        var projIndex = $(this).index();
-        chat_name = $(this).text()
-        if($(this).attr('id')[0] == "p") { //se il post é di tipo posizione
-            let lid = $(this).attr('id').split(',')
-            //openMapbox(lid[0].substring(1),lid[1],lid[2]); //prende solo la cifra del pid
-            c(lid[0].substring(1));
-            showScreen("#viewMapPage");
-        } else if ($(this).attr('id')[0] == "i") {
-            //impostare immagine grande
-            //c($(this).html())
-            let imgClicked = $(this).html().split('"')[11].replace(/\s/g, ''); //parse html per prendere stringa dell'immagine profilo
-            $("#imgBig").attr('src',imgClicked);
-            showScreen("#viewImagePage");
-            $("body").css({"background-color":"black"})
-            // $("#"+pid).attr('src')
-
-        }
-    });
-
-    $("#sendPost").click(function () {
-        let textMessage = $("#textPost").val();
-        if (textMessage.length == 0) {
-            alert("The message can't be empty!")
-        } else if(textMessage.length>100) {
-            alert("The message can't be longer than 100 characters!")
-        } else {
-            sendTextPost(textMessage);
-        }
-    })
-
-    $("#posPost").click(function () {
-        showScreen("#sendPositionPage");
-    })
-
-    $("#imgPost").click(function() {
-        $('.inputImageToLoad').trigger('click');
-    })
-
-    $("#sendPosition").click(function () {
-        // sendPosPost();
-        //openMapboxSend(0,0);
-        watchPosition()
-    })
-
-    //TODO: chiamata di rete per i messaggi
     function getChannel(chat_name) {
             ctitle = chat_name;
             $('.channel').text("@channel: " + ctitle);
@@ -81,6 +34,7 @@
             type = posts[i].type;
             pid = posts[i].pid;
             pversion = posts[i].pversion;
+            console.log(uid);
 
             if (type == "t") {
                 content = posts[i].content
@@ -89,7 +43,7 @@
                 databaseHandler.isProfilePicInDb(uid,pid);
             } else if (type == "i") {
                 //c(pid);
-                $("#chat_list").append(format('<li class="list-group-item" id="i%s"> <img id="%s" src="src/default_photo_white.png" class="profile-pic" style="width:40px;height:40px;" align="left"></img><b><p>&emsp;%s:</p></b> <img src="src/default_photo_white.png" id="%s" class="post-image" width="100%" height="100%"/> </li>',uid,pid,name,pid));
+                $("#chat_list").append(format('<li class="list-group-item" id="i%s"> <img id="%s" src="src/loading.gif" class="profile-pic" style="width:40px;height:40px;" align="left"></img><b><p>&emsp;%s:</p></b> <img src="src/loading.gif" id="%s" class="post-image" width="100%" height="100%"/> </li>',uid,pid,name,pid));
                 //requestMessageImage(pid,name);
                 databaseHandler.isPostImageInDb(pid);
 
@@ -98,7 +52,7 @@
             } else if (type == "l") {
                 lat = posts[i].lat
                 lon = posts[i].lon
-                openMapbox(lat,lon);
+                //openMapbox(lat,lon);
                 posText = "Lat: " + lat + " Lon: " + lon
                 addPostPosToList(pid,name,posText,lat,lon);
                 // getProfilePic(pid,uid);
@@ -114,8 +68,57 @@
 
     }
 
+
+    $("#chat_list").on("click", "li", function () {
+        var projIndex = $(this).index();
+        chat_name = $(this).text()
+        if($(this).attr('id')[0] == "p") { //se il post é di tipo posizione
+            let lid = $(this).attr('id').split(',')
+            //openMapbox(lid[0].substring(1),lid[1],lid[2]); //prende solo la cifra del pid
+            c(lid[0].substring(1));
+            openMapbox(lid[1],lid[2]);
+            showScreen("#viewMapPage");
+        } else if ($(this).attr('id')[0] == "i") {
+            //impostare immagine grande
+            //c($(this).html())
+            // let imgClicked = $(this).html().split('"')[11].replace(/\s/g, ''); //parse html per prendere stringa dell'immagine profilo
+            imClickedHtml = $.parseHTML($(this).html())
+            let imgClicked = imClickedHtml[4].attributes[0].nodeValue;
+            console.warn(imClickedHtml);
+            $("#imgBig").attr('src',imgClicked);
+            showScreen("#viewImagePage");
+            $("body").css({"background-color":"black"})
+            // $("#"+pid).attr('src')
+
+        }
+    });
+
+    $("#sendPost").click(function () {
+        let textMessage = $("#textPost").val();
+        if (textMessage.length == 0) {
+            alert("The message can't be empty!")
+        } else if(textMessage.length>100) {
+            alert("The message can't be longer than 100 characters!")
+        } else {
+            sendTextPost(textMessage);
+        }
+    })
+
+    $("#posPost").click(function () {
+        watchPosition();
+        showScreen("#sendPositionPage");
+        getPosition();
+    })
+
+    $("#imgPost").click(function() {
+        $('.inputImageToLoad').trigger('click');
+    })
+
+    $("#sendPosition").click(function () {
+        sendPosPost();
+    })
+
     function requestMessageImage(pid) {
-         //c("requestMessageImage");
         let imageFinal;
         $.ajax({
                 type: "POST",
@@ -144,9 +147,9 @@
                         databaseHandler.updateProfileImage(uid,jsonProfilePic.pversion,jsonProfilePic.picture);
                     } else {
                         if (jsonProfilePic.picture == null) {
-                            databaseHandler.addPostImage(pid,"R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7");
+                            databaseHandler.addProfileImage(pid,"R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7");
                         } else {
-                            databaseHandler.addPostImage(pid,jsonProfilePic.picture);
+                            databaseHandler.addProfileImage(pid,jsonProfilePic.picture);
                         }
                         
                     }
@@ -198,9 +201,9 @@
         $.ajax({
             type: "POST",
             url: base_url + "addPost.php",
-            data: JSON.stringify({ "sid": sid ,"ctitle": ctitleGLOBAL ,"type": "l" , "lat": latMapbox , "lon": lonMapbox }),
+            data: JSON.stringify({ "sid": sid ,"ctitle": ctitleGLOBAL ,"type": "l" , "lat": watchPositionLat , "lon": watchPositionLon }),
             success: function (data) {
-                c("Message POSITION sent successfully: " + latMapbox + " , " + lonMapbox);
+                console.log("Message POSITION sent successfully: " + watchPositionLat + " , " + watchPositionLon);
                 showScreen("#chatPage");
                 $('#chat_list').empty()
                 getChannel(ctitle);
@@ -212,12 +215,12 @@
     }
 
     function addPostTextToList(pid,name,content) {
-        let textToAppend = format('<li class="list-group-item" id="t%s"><img id="%s" src="src/default_photo_white.png" class="profile-pic" style="width:40px;height:40px;" align="left"></img> <b><p>&emsp;%s:</p></b><br> <p>&emsp;%s</p> </li> ',pid,pid,name,content);
+        let textToAppend = format('<li class="list-group-item" id="t%s"><img id="%s" src="src/loading.gif" class="profile-pic" style="width:40px;height:40px;" align="left"></img> <b><p>&emsp;%s:</p></b><br> <p>&emsp;%s</p> </li> ',pid,pid,name,content);
         $("#chat_list").append(textToAppend);
     }
 
     function addPostPosToList(pid,name,pos,lat,lon) {
-        let textToAppend = format('<li class="list-group-item" id="p%s,%s,%s" > <img id="%s" src="src/default_photo_white.png" class="profile-pic" style="width:40px;height:40px;" align="left"></img> <b><p>&emsp;%s:</p></b> <p>&emsp;%s</p> </li> ',pid,lat,lon,pid,name,pos);
+        let textToAppend = format('<li class="list-group-item" id="p%s,%s,%s" > <img id="%s" src="src/loading.gif" class="profile-pic" style="width:40px;height:40px;" align="left"></img> <b><p>&emsp;%s:</p></b> <p>&emsp;%s</p> </li> ',pid,lat,lon,pid,name,pos);
         $("#chat_list").append(textToAppend);
     }
 
@@ -256,7 +259,7 @@
         let finalStringProfilePicBase64;
 
         if(profilePicBase64==null) { //se la foto é nulla metti l'immagine di base ed esci dall funzione
-            $("#"+pid+ ".profile-pic" ).attr('src',"src/image_not_formatted_well.jpg");
+            $("#"+pid+ ".profile-pic" ).attr('src',"src/default_user.jpg");
         }
                
         try { //setta l'immagine solo se é una stringa base64 valida
@@ -270,7 +273,7 @@
         try{ 
             $("#"+pid+ ".profile-pic" ).attr('src',finalStringProfilePicBase64);
         } catch (e) {
-            $("#"+pid+ ".profile-pic" ).attr('src',"src/default_photo_white.png");
+            $("#"+pid+ ".profile-pic" ).attr('src',"src/default_user.jpg");
         }
 
         //databaseHandler.addProfileImage(uid,pversion,profilePicBase64);
@@ -300,7 +303,7 @@
         try{ 
             $("#"+pid+ ".profile-pic" ).attr('src',finalStringProfilePicBase64);
         } catch (e) {
-            $("#"+pid+ ".profile-pic" ).attr('src',"src/default_photo_white.png");
+            $("#"+pid+ ".profile-pic" ).attr('src',"src/default_user.jpg");
         }
 
         //databaseHandler.addProfileImage(uid,pversion,profilePicBase64);
