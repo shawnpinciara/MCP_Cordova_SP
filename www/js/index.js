@@ -135,7 +135,8 @@ var ctitleGLOBAL;
             },
             error: function(error){
                 console.log(error.responseText);
-                alert("User not registered, try to reload the page!")
+                alert("User not registered,check the connection and trying again... ");
+                userImplicitRegistration();
             }
         })
     }
